@@ -1,82 +1,67 @@
-<!-- Fragmento #1 que irá en el head de todas las páginas, así se incluye todo lo necesario de configuración-->
-<head th:fragment="head">
-    <title>TechShop</title>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/fav/favicon-16x16.png}"/>
-    <link rel="icon" type="image/png" sizes="32x32" th:href="@{/fav/favicon-32x32.png}"/>
-    <link rel="icon" type="image/png" sizes="96x96" th:href="@{/fav/favicon-96x96.png}"/>
-    <link rel="icon" type="image/png" sizes="256x256" th:href="@{/fav/favicon-256x256.png}"/>
-    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet"/>
-    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-    <script th:src="@{/js/rutinas.js}"></script>    
-</head>
+<!-- 1 Fragmento con formulario unificado para agregar y modificar categoría -->
+<section th:fragment="formulario">
+    
+</section>
 
-
-<!-- Fragmento #2  define el encabezado de las páginas, en concreto el menú y enlaces rápidos -->
-<header th:fragment="header" class="header">
-    <nav class="navbar navbar-expand-sm p-0">
-        <div class="container">                    
-            <a th:href="@{/}" class="navbar-brand">[[#{aplicacion.titulo}]]</a>
-            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <ul class="navbar-nav" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_VENDEDOR')">
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/categoria/listado}">[[#{plantilla.categorias}]]</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/producto/listado}">[[#{plantilla.productos}]]</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/consultas/listado}">[[#{plantilla.consultas}]]</a></li>                                
-                    <li class="nav-item dropdown" sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
-                            [[#{plantilla.admin}]]</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/usuario/listado}">[[#{plantilla.usuarios}]]</a></li>                                    
-                            <li class="submenu submenu-md dropend">
-                                <a class="dropdown-item dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-                                   onclick="event.stopPropagation();">
-                                    [[#{plantilla.seguridad}]]
-                                </a>
-                                <ul class="dropdown-menu">                                            
-                                    <li><a class="dropdown-item" th:href="@{/role/listado}">[[#{plantilla.troles}]]</a></li>
-                                    <li><a class="dropdown-item" th:href="@{/usuario_rol/mantenimiento}">[[#{plantilla.permisos}]]</a></li>
-                                    <li><a class="dropdown-item" th:href="@{/ruta/listado}">[[#{plantilla.rutas}]]</a></li>
-                                </ul>
-                            </li>
-                            <li><a class="dropdown-item" th:href="@{/constante/listado}">[[#{plantilla.constantes}]]</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
-                            [[#{plantilla.idioma}]]</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/(lang=es)}">Español</a></li>
-                            <li><a class="dropdown-item" th:href="@{/(lang=en)}">English</a></li>
-                            <li><a class="dropdown-item" th:href="@{/(lang=fr)}">Française</a></li>
-                            <li><a class="dropdown-item" th:href="@{/(lang=pt)}">Portugaise</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <div id="resultBlock">
-                </div> 
-            </div>
-        </div>
-    </nav>
-    <section id="main-header" class="py-2 bg-success text-white d-print-none">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h1><i class="fas fa-cog"></i> [[#{plantilla.suTienda}]]</h1>
+<!-- fragmento 2 para el listado de categorias -->
+<section th:fragment="listado" class="p-3">
+    <div class="row p-3">
+        <div class="col-md-9">
+            <div class="card p-2">
+                <div class="card-header"><h4>[[#{categoria.listado}]]</h4></div>
+                <div class="card-body">
+                    <div th:if="${categorias != null and !categorias.empty}">
+                        <table class="table table-striped table-hover">
+                            <thead><tr><th>#</th>
+                                    <th>[[#{categoria.descripcion}]]</th>
+                                    <th>[[#{categoria.imagen}]]</th>
+                                    <th>[[#{categoria.activo}]]</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${categorias}">
+                                    <td>[[${c.idCategoria}]]</td>
+                                    <td>[[${c.descripcion}]]</td>
+                                    <td><img th:if="${c.rutaImagen != null}" th:src="${c.rutaImagen}" alt="Imagen de categoría" height="75"/></td>
+                                    <td th:text="${c.activo} ? #{categoria.estado.activa} : #{categoria.estado.inactiva}"></td>
+                                    <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <button type="button" class="btn btn-danger"
+                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                th:data-bs-id="${c.idCategoria}"
+                                                th:data-bs-descripcion="${c.descripcion}">
+                                            <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                        </button>                                           
+                                        <button type="button"
+                                                class="btn btn-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#categoriaModal"
+                                                data-modo="editar"
+                                                th:data-titulo="#{accion.actualizar}"
+                                                th:data-id="${c.idCategoria}"
+                                                th:data-descripcion="${c.descripcion}"
+                                                th:data-activo="${c.activo}"
+                                                th:data-imagen="${c.rutaImagen != null ? c.rutaImagen : ''}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                            [[#{accion.actualizar}]]
+                                        </button>                                             
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center p-2" th:if="${categorias == null or categorias.empty}">
+                        <span>[[#{lista.vacia}]]</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-</header>
-
-<!-- Fragmento #3  define el footer de las páginas, aparte de esto se podria incluir enlaces a redes socilaes y demás -->
-<footer th:fragment="footer" class="p-2 mt-5 bg-info text-white d-print-none">
-    <p class="lead text-center">[[#{plantilla.derechos}]] &COPY;</p>
-</footer>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white mb-3">
+                <div class="card-body"><h3>[[#{categoria.total}]]</h3>
+                    <h4 class="fs-2"><i class="fas fa-layer-group"></i> [[${totalCategorias}]]</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
